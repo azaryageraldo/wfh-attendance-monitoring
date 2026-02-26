@@ -8,6 +8,7 @@
 # Project secret/temp files
 modul.txt
 pertanyaan
+AI_RULES.txt
 
 # Dependencies and configs
 node_modules/

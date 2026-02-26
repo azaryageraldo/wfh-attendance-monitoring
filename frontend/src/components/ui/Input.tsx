@@ -5,6 +5,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   helperText?: string;
   leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
 export default function Input({
@@ -12,6 +13,7 @@ export default function Input({
   error,
   helperText,
   leftIcon,
+  rightIcon,
   className = '',
   id,
   ...props
@@ -30,7 +32,7 @@ export default function Input({
       )}
       <div className="relative">
         {leftIcon && (
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 z-10">
             {leftIcon}
           </div>
         )}
@@ -44,6 +46,7 @@ export default function Input({
             focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500
             disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed
             ${leftIcon ? 'pl-10' : ''}
+            ${rightIcon ? 'pr-10' : ''}
             ${error
               ? 'border-red-400 focus:ring-red-500/30 focus:border-red-500'
               : 'border-slate-200 hover:border-slate-300'
@@ -52,6 +55,11 @@ export default function Input({
           `}
           {...props}
         />
+        {rightIcon && (
+          <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 z-10">
+            {rightIcon}
+          </div>
+        )}
       </div>
       {error && (
         <p className="mt-1 text-xs text-red-500 flex items-center gap-1">

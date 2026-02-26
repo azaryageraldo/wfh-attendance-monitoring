@@ -1,4 +1,7 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { authService } from '../../services/auth.service';
+import toast from 'react-hot-toast';
 import {
   LayoutDashboard,
   Users,
@@ -21,6 +24,22 @@ const navigation = [
 ];
 
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout error on backend', error);
+      // Tetap lanjutkan pembersihan konteks browser meski server error (misal token kedaluwarsa)
+    } finally {
+      logout();
+      toast.success('Berhasil keluar');
+      navigate('/login');
+    }
+  };
+
   return (
     <aside
       className={`
@@ -78,7 +97,10 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <ChevronLeft className={`w-5 h-5 shrink-0 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`} />
           {!collapsed && <span>Collapse</span>}
         </button>
-        <button className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 w-full cursor-pointer ${collapsed ? 'justify-center' : ''}`}>
+        <button
+          onClick={handleLogout}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 w-full cursor-pointer ${collapsed ? 'justify-center' : ''}`}
+        >
           <LogOut className="w-5 h-5 shrink-0" />
           {!collapsed && <span>Keluar</span>}
         </button>

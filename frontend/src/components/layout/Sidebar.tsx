@@ -3,10 +3,10 @@ import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/auth.service';
 import toast from 'react-hot-toast';
 import {
-  LayoutDashboard,
+  PieChart,
   Users,
   ClipboardCheck,
-  Monitor,
+  Activity,
   LogOut,
   ChevronLeft,
 } from 'lucide-react';
@@ -16,16 +16,22 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Karyawan', href: '/karyawan', icon: Users },
-  { name: 'Presensi', href: '/presensi', icon: ClipboardCheck },
-  { name: 'Monitoring', href: '/monitoring', icon: Monitor },
-];
-
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  const adminNavigation = [
+    { name: 'Dashboard', href: '/', icon: PieChart },
+    { name: 'Karyawan', href: '/karyawan', icon: Users },
+    { name: 'Monitoring', href: '/monitoring', icon: Activity },
+  ];
+
+  const employeeNavigation = [
+    { name: 'Dashboard', href: '/', icon: PieChart },
+    { name: 'Presensi', href: '/presensi', icon: ClipboardCheck },
+  ];
+
+  const navigation = user?.role === 'ADMIN_HR' ? adminNavigation : employeeNavigation;
 
   const handleLogout = async () => {
     try {

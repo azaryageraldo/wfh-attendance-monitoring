@@ -14,3 +14,8 @@ node_modules/
 .env
 .env.*
 !.env.example
+
+
+# Build outputs (monorepo safety)
+backend/dist
+frontend/dist

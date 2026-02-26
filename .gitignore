@@ -3,10 +3,14 @@
 .idea/
 .vscode/
 *.sw?
+*.log
 
 # Project secret/temp files
 modul.txt
 pertanyaan
 
-# If there is a root node_modules
+# Dependencies and configs
 node_modules/
+.env
+.env.*
+!.env.example

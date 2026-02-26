@@ -1,0 +1,12 @@
+# OS/IDE files
+.DS_Store
+.idea/
+.vscode/
+*.sw?
+
+# Project secret/temp files
+modul.txt
+pertanyaan
+
+# If there is a root node_modules
+node_modules/

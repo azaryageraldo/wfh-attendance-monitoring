@@ -6,6 +6,8 @@ import Dashboard from './pages/dashboard/Dashboard';
 import KaryawanList from './pages/karyawan/KaryawanList';
 import CreateKaryawan from './pages/karyawan/CreateKaryawan';
 import EditKaryawan from './pages/karyawan/EditKaryawan';
+import PresensiPage from './pages/presensi/PresensiForm';
+import PresensiHistory from './pages/presensi/PresensiHistory';
 
 export default function App() {
   return (
@@ -19,7 +21,8 @@ export default function App() {
           <Route path="/karyawan" element={<KaryawanList />} />
           <Route path="/karyawan/create" element={<CreateKaryawan />} />
           <Route path="/karyawan/edit/:id" element={<EditKaryawan />} />
-          <Route path="/presensi" element={<div className="p-6">Panel Presensi</div>} />
+          <Route path="/presensi" element={<PresensiPage />} />
+          <Route path="/presensi/history" element={<PresensiHistory />} />
           <Route path="/monitoring" element={<div className="p-6">Panel Monitoring</div>} />
         </Route>
       </Route>

@@ -9,14 +9,18 @@ import {
   Activity,
   LogOut,
   ChevronLeft,
+  History,
+  X,
 } from 'lucide-react';
 
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  mobileOpen: boolean;
+  onMobileClose: () => void;
 }
 
-export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }: SidebarProps) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -29,6 +33,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const employeeNavigation = [
     { name: 'Dashboard', href: '/', icon: PieChart },
     { name: 'Presensi', href: '/presensi', icon: ClipboardCheck },
+    { name: 'Riwayat', href: '/presensi/history', icon: History },
   ];
 
   const navigation = user?.role === 'ADMIN_HR' ? adminNavigation : employeeNavigation;
@@ -38,12 +43,16 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       await authService.logout();
     } catch (error) {
       console.error('Logout error on backend', error);
-      // Tetap lanjutkan pembersihan konteks browser meski server error (misal token kedaluwarsa)
     } finally {
       logout();
       toast.success('Berhasil keluar');
       navigate('/login');
     }
+  };
+
+  const handleNavClick = () => {
+    // Close sidebar on mobile after clicking a nav link
+    onMobileClose();
   };
 
   return (
@@ -54,11 +63,15 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
         border-r border-slate-700/50
         flex flex-col
         transition-all duration-300 ease-out
-        ${collapsed ? 'w-[72px]' : 'w-64'}
+        ${/* Mobile: full width, slide from left */'' }
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
+        lg:translate-x-0
+        w-64
+        ${collapsed ? 'lg:w-[72px]' : 'lg:w-64'}
       `}
     >
       {/* Logo / Brand */}
-      <div className="flex items-center h-16 px-4 border-b border-slate-700/50">
+      <div className="flex items-center justify-between h-16 px-4 border-b border-slate-700/50">
         <div className="flex items-center gap-3 overflow-hidden">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/30">
             <ClipboardCheck className="w-5 h-5 text-white" />
@@ -70,6 +83,13 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
             </div>
           )}
         </div>
+        {/* Mobile close button */}
+        <button
+          onClick={onMobileClose}
+          className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+        >
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -78,6 +98,8 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           <NavLink
             key={item.name}
             to={item.href}
+            end
+            onClick={handleNavClick}
             className={({ isActive }) => `
               flex items-center gap-3 px-3 py-2.5 rounded-xl
               text-sm font-medium transition-all duration-200
@@ -85,7 +107,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
                 ? 'bg-blue-600/20 text-blue-400 shadow-sm shadow-blue-500/10'
                 : 'text-slate-400 hover:text-white hover:bg-white/5'
               }
-              ${collapsed ? 'justify-center' : ''}
+              ${collapsed ? 'lg:justify-center' : ''}
             `}
           >
             <item.icon className="w-5 h-5 shrink-0" />
@@ -98,14 +120,14 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
       <div className="p-3 border-t border-slate-700/50 space-y-1">
         <button
           onClick={onToggle}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-200 w-full cursor-pointer"
+          className="hidden lg:flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-200 w-full cursor-pointer"
         >
           <ChevronLeft className={`w-5 h-5 shrink-0 transition-transform duration-300 ${collapsed ? 'rotate-180' : ''}`} />
           {!collapsed && <span>Collapse</span>}
         </button>
         <button
           onClick={handleLogout}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 w-full cursor-pointer ${collapsed ? 'justify-center' : ''}`}
+          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-200 w-full cursor-pointer ${collapsed ? 'lg:justify-center' : ''}`}
         >
           <LogOut className="w-5 h-5 shrink-0" />
           {!collapsed && <span>Keluar</span>}

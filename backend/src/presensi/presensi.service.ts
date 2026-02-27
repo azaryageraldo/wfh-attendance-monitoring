@@ -15,7 +15,7 @@ export class PresensiService {
     const existing = await this.prisma.presensi.findFirst({
       where: {
         userId,
-        tanggal: {
+        checkInWaktu: {
           gte: today,
           lt: tomorrow,
         },
@@ -29,9 +29,9 @@ export class PresensiService {
     return this.prisma.presensi.create({
       data: {
         userId,
-        photoUrl,
-        keterangan,
-        tanggal: new Date(),
+        checkInPhotoUrl: photoUrl,
+        checkInKeterangan: keterangan,
+        checkInWaktu: new Date(),
       },
     });
   }
@@ -39,7 +39,7 @@ export class PresensiService {
   async findByUser(userId: string) {
     return this.prisma.presensi.findMany({
       where: { userId },
-      orderBy: { tanggal: 'desc' },
+      orderBy: { checkInWaktu: 'desc' },
     });
   }
 
@@ -52,13 +52,54 @@ export class PresensiService {
     const presensi = await this.prisma.presensi.findFirst({
       where: {
         userId,
-        tanggal: {
+        checkInWaktu: {
           gte: today,
           lt: tomorrow,
         },
       },
     });
 
-    return { hadir: !!presensi, data: presensi };
+    let statusString = 'Belum Absen';
+    if (presensi) {
+      statusString = presensi.checkOutWaktu ? 'Hadir (Selesai)' : 'Hadir (Belum Checkout)';
+    }
+
+    return { hadir: !!presensi, isCheckout: !!presensi?.checkOutWaktu, status: statusString, data: presensi };
+  }
+
+  async checkout(userId: string, photoUrl: string | null, keterangan?: string) {
+    // Cari absensi hari ini
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const existing = await this.prisma.presensi.findFirst({
+      where: {
+        userId,
+        checkInWaktu: {
+          gte: today,
+          lt: tomorrow,
+        },
+      },
+    });
+
+    if (!existing) {
+      throw new ConflictException('Anda belum melakukan absensi masuk (check-in) hari ini');
+    }
+
+    if (existing.checkOutWaktu) {
+      throw new ConflictException('Anda sudah melakukan absensi pulang (check-out) hari ini');
+    }
+
+    // Lakukan update untuk checkout
+    return this.prisma.presensi.update({
+      where: { id: existing.id },
+      data: {
+        checkOutWaktu: new Date(),
+        checkOutPhotoUrl: photoUrl,
+        checkOutKeterangan: keterangan,
+      },
+    });
   }
 }

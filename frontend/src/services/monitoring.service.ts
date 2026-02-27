@@ -7,22 +7,18 @@ export interface MonitoringData {
   email: string;
   department: string;
   position: string;
-  tanggal: string;
+  checkInWaktu: string;
   waktu: string;
   status: 'hadir' | 'tidak_hadir' | 'terlambat';
-  photoUrl: string | null;
-  keterangan: string | null;
-}
-
-export interface MonitoringSummary {
-  totalHadir: number;
-  totalTidakHadir: number;
-  totalTerlambat: number;
+  checkInPhotoUrl: string | null;
+  checkInKeterangan: string | null;
+  checkOutWaktu: string | null;
+  checkOutPhotoUrl: string | null;
+  checkOutKeterangan: string | null;
 }
 
 export interface MonitoringResponse {
   date: string;
-  summary: MonitoringSummary;
   data: MonitoringData[];
 }
 

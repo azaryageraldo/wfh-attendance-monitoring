@@ -36,14 +36,18 @@ model Presensi {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  tanggal DateTime @default(now())
+  checkInWaktu DateTime @default(now())
 
-  photoUrl   String? // path file upload
-  keterangan String? // optional note
+  checkInPhotoUrl   String? // path file upload check-in
+  checkInKeterangan String? // optional note check-in
+
+  checkOutWaktu      DateTime?
+  checkOutPhotoUrl   String?
+  checkOutKeterangan String?
 
   createdAt DateTime @default(now())
 
-  @@unique([userId, tanggal])
+  @@unique([userId, checkInWaktu])
   @@index([userId])
-  @@index([tanggal])
+  @@index([checkInWaktu])
 }

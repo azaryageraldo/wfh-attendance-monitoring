@@ -112,7 +112,11 @@ export default function PresensiPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
-      toast.error('Silakan ambil foto atau upload bukti WFH terlebih dahulu');
+      toast.error(
+        todayStatus?.hadir
+          ? 'Silakan ambil foto bukti Checkout terlebih dahulu'
+          : 'Silakan ambil foto bukti Check-in terlebih dahulu'
+      );
       return;
     }
     try {
@@ -120,8 +124,17 @@ export default function PresensiPage() {
       const formData = new FormData();
       formData.append('photo', selectedFile);
       if (keterangan) formData.append('keterangan', keterangan);
-      await presensiService.submit(formData);
-      toast.success('Absensi berhasil dicatat!');
+
+      if (todayStatus?.hadir && !todayStatus?.isCheckout) {
+        await presensiService.submitCheckout(formData);
+        toast.success('Berhasil melakukan absensi pulang (Checkout)!');
+      } else {
+        await presensiService.submit(formData);
+        toast.success('Berhasil melakukan absensi masuk (Check-in)!');
+      }
+      
+      clearPhoto();
+      setKeterangan('');
       checkTodayStatus();
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Gagal melakukan absensi');
@@ -161,18 +174,18 @@ export default function PresensiPage() {
         <p className="text-3xl font-bold mt-1">{timeStr} WIB</p>
       </div>
 
-      {todayStatus?.hadir ? (
-        /* Already checked in */
+      {todayStatus?.hadir && todayStatus?.isCheckout ? (
+        /* Completed Both Check-In & Check-Out */
         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
               <CheckCircle className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-emerald-800">Absensi Hari Ini Tercatat</h3>
+              <h3 className="font-semibold text-emerald-800">Absensi Hari Ini Selesai</h3>
               <p className="text-sm text-emerald-600">
-                Dicatat pada{' '}
-                {new Date(todayStatus.data!.tanggal).toLocaleTimeString('id-ID', {
+                Check-out tercatat pada{' '}
+                {new Date(todayStatus.data!.checkOutWaktu as string).toLocaleTimeString('id-ID', {
                   hour: '2-digit',
                   minute: '2-digit',
                 })}{' '}
@@ -180,29 +193,31 @@ export default function PresensiPage() {
               </p>
             </div>
           </div>
-          {todayStatus.data?.photoUrl && (
+          {todayStatus.data?.checkOutPhotoUrl && (
             <img
-              src={`http://localhost:3000${todayStatus.data.photoUrl}`}
-              alt="Bukti WFH"
+              src={`http://localhost:3000${todayStatus.data.checkOutPhotoUrl}`}
+              alt="Bukti Checkout WFH"
               className="w-full rounded-xl mt-3 border border-emerald-200"
             />
           )}
-          {todayStatus.data?.keterangan && (
+          {todayStatus.data?.checkOutKeterangan && (
             <p className="mt-3 text-sm text-emerald-700 bg-emerald-100 rounded-lg p-3">
               <FileText className="w-4 h-4 inline mr-1" />
-              {todayStatus.data.keterangan}
+              {todayStatus.data.checkOutKeterangan}
             </p>
           )}
         </div>
       ) : (
-        /* Attendance Form */
+        /* Attendance Form (Either Check-in or Check-out) */
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
-          <h3 className="font-semibold text-slate-800 text-lg">Form Absensi</h3>
+          <h3 className="font-semibold text-slate-800 text-lg">
+            {todayStatus?.hadir ? 'Form Absensi Pulang (Checkout)' : 'Form Absensi Masuk (Check-in)'}
+          </h3>
 
           {/* Photo Section */}
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-2">
-              Foto Bukti WFH <span className="text-red-500">*</span>
+              Foto Bukti {todayStatus?.hadir ? 'Checkout' : 'WFH'} <span className="text-red-500">*</span>
             </label>
 
             <input
@@ -300,7 +315,7 @@ export default function PresensiPage() {
 
           <Button type="submit" isLoading={loading} size="lg" className="w-full">
             <CheckCircle className="w-4 h-4 mr-2" />
-            Absen Sekarang
+            {todayStatus?.hadir ? 'Absen Pulang' : 'Absen Sekarang'}
           </Button>
         </form>
       )}

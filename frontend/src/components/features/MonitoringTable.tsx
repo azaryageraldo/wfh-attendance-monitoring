@@ -5,10 +5,9 @@ import Badge from '../ui/Badge';
 import Button from '../ui/Button';
 import Card, { CardHeader } from '../ui/Card';
 import Input from '../ui/Input';
-import type { MonitoringData, MonitoringSummary } from '../../services/monitoring.service';
+import type { MonitoringData } from '../../services/monitoring.service';
 
 interface MonitoringTableProps {
-  summary: MonitoringSummary;
   records: MonitoringData[];
 }
 
@@ -25,7 +24,7 @@ const statusBadge = (status: string) => {
   }
 };
 
-export default function MonitoringTable({ summary, records }: MonitoringTableProps) {
+export default function MonitoringTable({ records }: MonitoringTableProps) {
   const [search, setSearch] = useState('');
   const [filterDept, setFilterDept] = useState('');
   const [selectedRecord, setSelectedRecord] = useState<MonitoringData | null>(null);
@@ -71,6 +70,15 @@ export default function MonitoringTable({ summary, records }: MonitoringTablePro
       ),
     },
     {
+      key: 'checkOutWaktu',
+      header: 'Waktu Keluar',
+      render: (row) => (
+        <span className={`font-mono text-sm ${!row.checkOutWaktu ? 'text-slate-300' : 'text-slate-700'}`}>
+          {row.checkOutWaktu || '-'}
+        </span>
+      ),
+    },
+    {
       key: 'status',
       header: 'Status',
       render: (row) => statusBadge(row.status),
@@ -94,9 +102,9 @@ export default function MonitoringTable({ summary, records }: MonitoringTablePro
 
   const handleExport = () => {
     // Generate simple CSV
-    let csv = 'Nama,Email,Departemen,Posisi,Waktu,Status,Keterangan\n';
+    let csv = 'Nama,Email,Departemen,Posisi,Waktu Masuk,Waktu Keluar,Status,Keterangan Masuk,Keterangan Keluar\n';
     filtered.forEach((row) => {
-      csv += `"${row.nama}","${row.email}","${row.department}","${row.position}","${row.waktu}","${row.status === 'hadir' ? 'Hadir' : 'Tidak Hadir'}","${row.keterangan || ''}"\n`;
+      csv += `"${row.nama}","${row.email}","${row.department}","${row.position}","${row.waktu}","${row.checkOutWaktu || '-'}","${row.status.replace('_', ' ')}","${row.checkInKeterangan || ''}","${row.checkOutKeterangan || ''}"\n`;
     });
     
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -112,25 +120,6 @@ export default function MonitoringTable({ summary, records }: MonitoringTablePro
 
   return (
     <div className="space-y-6">
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-2xl p-4 sm:p-5 border border-emerald-100">
-          <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider">Hadir</p>
-          <p className="text-2xl sm:text-3xl font-bold text-emerald-700 mt-1">{summary.totalHadir}</p>
-          <p className="text-xs text-emerald-500 mt-1">karyawan</p>
-        </div>
-        <div className="bg-gradient-to-br from-red-50 to-red-100/50 rounded-2xl p-4 sm:p-5 border border-red-100">
-          <p className="text-xs font-medium text-red-600 uppercase tracking-wider">Belum / Tidak Hadir</p>
-          <p className="text-2xl sm:text-3xl font-bold text-red-700 mt-1">{summary.totalTidakHadir}</p>
-          <p className="text-xs text-red-500 mt-1">karyawan</p>
-        </div>
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-4 sm:p-5 border border-blue-100 hidden lg:block">
-          <p className="text-xs font-medium text-blue-600 uppercase tracking-wider">Total Karyawan</p>
-          <p className="text-3xl font-bold text-blue-700 mt-1">{records.length}</p>
-          <p className="text-xs text-blue-500 mt-1">terdaftar</p>
-        </div>
-      </div>
-
       {/* Table Card */}
       <Card padding="none">
         <div className="p-4 sm:p-5 border-b border-slate-100">
@@ -189,37 +178,90 @@ export default function MonitoringTable({ summary, records }: MonitoringTablePro
               <p className="text-sm text-slate-500">{selectedRecord.department} — {selectedRecord.position}</p>
             </div>
             
-            <div className="p-6 bg-slate-50">
-              {selectedRecord.photoUrl ? (
-                <div className="mb-5 rounded-xl overflow-hidden border border-slate-200 shadow-inner bg-white">
-                  <img
-                    src={`http://localhost:3000${selectedRecord.photoUrl}`}
-                    alt={`Bukti WFH - ${selectedRecord.nama}`}
-                    className="w-full object-cover max-h-[300px]"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://placehold.co/600x400/e2e8f0/64748b?text=Image+Not+Found';
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="h-40 bg-slate-200 rounded-xl flex items-center justify-center mb-5 border border-slate-300 border-dashed">
-                  <div className="text-center text-slate-400">
-                    <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Tidak ada foto</p>
+            <div className="p-6 bg-slate-50 overflow-y-auto max-h-[70vh]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Check In Panel */}
+                <div>
+                  <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Absen Masuk</h4>
+                  {selectedRecord.checkInPhotoUrl ? (
+                    <div className="mb-4 rounded-xl overflow-hidden border border-slate-200 shadow-inner bg-white">
+                      <img
+                        src={`http://localhost:3000${selectedRecord.checkInPhotoUrl}`}
+                        alt={`Bukti Masuk - ${selectedRecord.nama}`}
+                        className="w-full h-40 object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = 'https://placehold.co/600x400/e2e8f0/64748b?text=Image+Not+Found';
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-40 bg-slate-200 rounded-xl flex items-center justify-center mb-4 border border-slate-300 border-dashed">
+                      <div className="text-center text-slate-400">
+                        <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">Tidak ada foto</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="text-slate-500">Waktu Masuk</span>
+                      <span className="font-semibold text-slate-800">{selectedRecord.waktu} WIB</span>
+                    </div>
+                    {selectedRecord.checkInKeterangan && (
+                      <div className="text-sm border-t border-slate-100 pt-3">
+                        <span className="text-slate-500 block mb-1">Keterangan:</span>
+                        <span className="text-slate-800 font-medium">{selectedRecord.checkInKeterangan}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-              )}
 
-              <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-500">Waktu Presensi</span>
-                  <span className="font-semibold text-slate-800">{selectedRecord.waktu} WIB</span>
-                </div>
-                <div className="flex justify-between items-center text-sm border-t border-slate-100 pt-3">
-                  <span className="text-slate-500">Keterangan</span>
-                  <span className="text-slate-800 font-medium text-right max-w-[200px] truncate" title={selectedRecord.keterangan || '-'}>
-                    {selectedRecord.keterangan || '-'}
-                  </span>
+                {/* Check Out Panel */}
+                <div>
+                  <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Absen Pulang</h4>
+                  {selectedRecord.checkOutWaktu ? (
+                    <>
+                      {selectedRecord.checkOutPhotoUrl ? (
+                        <div className="mb-4 rounded-xl overflow-hidden border border-slate-200 shadow-inner bg-white">
+                          <img
+                            src={`http://localhost:3000${selectedRecord.checkOutPhotoUrl}`}
+                            alt={`Bukti Keluar - ${selectedRecord.nama}`}
+                            className="w-full h-40 object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'https://placehold.co/600x400/e2e8f0/64748b?text=Image+Not+Found';
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-40 bg-slate-200 rounded-xl flex items-center justify-center mb-4 border border-slate-300 border-dashed">
+                          <div className="text-center text-slate-400">
+                            <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                            <p className="text-sm">Tidak ada foto</p>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="bg-white p-4 rounded-xl border border-slate-200 space-y-3">
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-slate-500">Waktu Keluar</span>
+                          <span className="font-semibold text-slate-800">{selectedRecord.checkOutWaktu} WIB</span>
+                        </div>
+                        {selectedRecord.checkOutKeterangan && (
+                          <div className="text-sm border-t border-slate-100 pt-3">
+                            <span className="text-slate-500 block mb-1">Keterangan:</span>
+                            <span className="text-slate-800 font-medium">{selectedRecord.checkOutKeterangan}</span>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="h-[218px] bg-slate-100 rounded-xl flex items-center justify-center border border-slate-200 border-dashed">
+                      <div className="text-center text-slate-400 px-6">
+                        <p className="text-sm">Karyawan belum melakukan absensi pulang</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -10,9 +10,10 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PresensiService } from './presensi.service.js';
-import { CreatePresensiDto } from './dto/create-presensi.dto.js';
+import { CreatePresensiDto, CreateCheckoutDto } from './dto/create-presensi.dto.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { multerConfig } from './upload/multer.config.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 
 @UseGuards(JwtAuthGuard)
 @Controller('presensi')
@@ -31,6 +32,21 @@ export class PresensiController {
       req.user.id,
       photoUrl,
       createPresensiDto.keterangan,
+    );
+  }
+
+  @Post('checkout')
+  @UseInterceptors(FileInterceptor('photo', multerConfig))
+  async checkout(
+    @Req() req: any,
+    @Body() createCheckoutDto: CreateCheckoutDto,
+    @UploadedFile() file?: Express.Multer.File,
+  ) {
+    const photoUrl = file ? `/uploads/${file.filename}` : null;
+    return this.presensiService.checkout(
+      req.user.id,
+      photoUrl,
+      createCheckoutDto.keterangan,
     );
   }
 

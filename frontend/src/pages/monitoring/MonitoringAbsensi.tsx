@@ -68,7 +68,7 @@ export default function MonitoringAbsensi() {
           <p>Memuat data monitoring...</p>
         </div>
       ) : data ? (
-        <MonitoringTable summary={data.summary} records={data.data} />
+        <MonitoringTable records={data.data} />
       ) : (
         <div className="py-20 text-center text-slate-500">Data tidak ditemukan.</div>
       )}

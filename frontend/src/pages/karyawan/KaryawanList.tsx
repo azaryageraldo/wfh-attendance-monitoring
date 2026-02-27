@@ -6,6 +6,7 @@ import type { Karyawan } from '../../services/karyawan.service';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Card, { CardHeader } from '../../components/ui/Card';
+import Modal from '../../components/ui/Modal';
 import toast from 'react-hot-toast';
 
 export default function KaryawanList() {
@@ -13,6 +14,9 @@ export default function KaryawanList() {
   const [data, setData] = useState<Karyawan[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [karyawanToDelete, setKaryawanToDelete] = useState<{ id: string; name: string } | null>(null);
 
   const fetchKaryawan = async () => {
     try {
@@ -30,15 +34,27 @@ export default function KaryawanList() {
     fetchKaryawan();
   }, []);
 
-  const handleDelete = async (id: string, name: string) => {
-    if (window.confirm(`Apakah Anda yakin ingin menghapus data ${name}?`)) {
-      try {
-        await karyawanService.delete(id);
-        toast.success('Data karyawan berhasil dihapus');
-        fetchKaryawan(); // refresh tabel
-      } catch (err) {
-        toast.error('Gagal menghapus data karyawan');
-      }
+  const openDeleteModal = (id: string, name: string) => {
+    setKaryawanToDelete({ id, name });
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setKaryawanToDelete(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!karyawanToDelete) return;
+    
+    try {
+      await karyawanService.delete(karyawanToDelete.id);
+      toast.success('Data karyawan berhasil dihapus');
+      fetchKaryawan(); // refresh tabel
+    } catch (err) {
+      toast.error('Gagal menghapus data karyawan');
+    } finally {
+      closeDeleteModal();
     }
   };
 
@@ -142,7 +158,7 @@ export default function KaryawanList() {
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleDelete(karyawan.id, karyawan.name)}
+                          onClick={() => openDeleteModal(karyawan.id, karyawan.name)}
                           className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                           title="Hapus"
                         >
@@ -157,6 +173,29 @@ export default function KaryawanList() {
           </table>
         </div>
       </Card>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={closeDeleteModal}
+        title="Hapus Data Karyawan"
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" onClick={closeDeleteModal}>
+              Batal
+            </Button>
+            <Button variant="danger" onClick={handleConfirmDelete}>
+              Hapus Data
+            </Button>
+          </>
+        }
+      >
+        <p className="text-slate-600">
+          Apakah Anda yakin ingin menghapus data{' '}
+          <span className="font-semibold text-slate-800">{karyawanToDelete?.name}</span>? 
+          Tindakan ini tidak dapat dibatalkan.
+        </p>
+      </Modal>
     </div>
   );
 }

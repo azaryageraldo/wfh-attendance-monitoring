@@ -5,6 +5,7 @@ import { karyawanService } from '../../services/karyawan.service';
 import type { Karyawan } from '../../services/karyawan.service';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import Card, { CardHeader } from '../../components/ui/Card';
 import toast from 'react-hot-toast';
 
 export default function KaryawanList() {
@@ -49,23 +50,29 @@ export default function KaryawanList() {
   );
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Master Karyawan</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-800">Master Karyawan</h1>
           <p className="text-sm text-slate-500 mt-1">
             Kelola data pegawai, divisi, dan peran dalam perusahaan.
           </p>
         </div>
-        <Button onClick={() => navigate('/karyawan/create')} className="shrink-0">
-          <Plus className="w-4 h-4 mr-2" />
-          Tambah Karyawan
-        </Button>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="p-4 border-b border-slate-200 bg-slate-50/50">
-          <div className="max-w-md">
+      <Card padding="none">
+        <div className="p-4 sm:p-5 border-b border-slate-100">
+          <CardHeader
+            title="Daftar Karyawan"
+            subtitle="Semua data karyawan terdaftar di sistem"
+            action={
+              <Button onClick={() => navigate('/karyawan/create')} size="sm" leftIcon={<Plus className="w-4 h-4" />}>
+                Tambah Karyawan
+              </Button>
+            }
+          />
+
+          <div className="flex mt-4 max-w-md">
             <Input
               placeholder="Cari nama, email, atau divisi..."
               value={search}
@@ -76,8 +83,8 @@ export default function KaryawanList() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50 text-slate-500 font-medium">
+          <table className="w-full text-left text-sm text-slate-600 min-w-[700px]">
+            <thead className="bg-slate-50 border-y border-slate-200 text-slate-500 font-medium">
               <tr>
                 <th className="px-6 py-4">Nama & Email</th>
                 <th className="px-6 py-4">Departemen</th>
@@ -86,7 +93,7 @@ export default function KaryawanList() {
                 <th className="px-6 py-4 text-right">Aksi</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-center text-slate-400">
@@ -101,7 +108,7 @@ export default function KaryawanList() {
                 </tr>
               ) : (
                 filteredData.map((karyawan) => (
-                  <tr key={karyawan.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr key={karyawan.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="font-medium text-slate-800">{karyawan.name}</div>
                       <div className="text-xs text-slate-500 mt-0.5">{karyawan.email}</div>
@@ -129,14 +136,14 @@ export default function KaryawanList() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => navigate(`/karyawan/edit/${karyawan.id}`)}
-                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
                           title="Edit"
                         >
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(karyawan.id, karyawan.name)}
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                           title="Hapus"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -149,7 +156,7 @@ export default function KaryawanList() {
             </tbody>
           </table>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

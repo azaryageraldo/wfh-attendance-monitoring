@@ -8,6 +8,7 @@ import CreateKaryawan from './pages/karyawan/CreateKaryawan';
 import EditKaryawan from './pages/karyawan/EditKaryawan';
 import PresensiPage from './pages/presensi/PresensiForm';
 import PresensiHistory from './pages/presensi/PresensiHistory';
+import MonitoringAbsensi from './pages/monitoring/MonitoringAbsensi';
 
 export default function App() {
   return (
@@ -23,7 +24,7 @@ export default function App() {
           <Route path="/karyawan/edit/:id" element={<EditKaryawan />} />
           <Route path="/presensi" element={<PresensiPage />} />
           <Route path="/presensi/history" element={<PresensiHistory />} />
-          <Route path="/monitoring" element={<div className="p-6">Panel Monitoring</div>} />
+          <Route path="/monitoring" element={<MonitoringAbsensi />} />
         </Route>
       </Route>
 

@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { DashboardModule } from './dashboard/dashboard.module.js';
 import { KaryawanModule } from './karyawan/karyawan.module.js';
 import { PresensiModule } from './presensi/presensi.module.js';
+import { MonitoringModule } from './monitoring/monitoring.module.js';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PresensiModule } from './presensi/presensi.module.js';
     DashboardModule,
     KaryawanModule,
     PresensiModule,
+    MonitoringModule,
   ],
   controllers: [],
   providers: [],

@@ -140,28 +140,28 @@ _Galeri antarmuka sistem yang berorientasi pada modernitas, konsistensi warna (L
 
 ### 1. Halaman Autentikasi (Login)
 
-![Login Screen](/documentation/login.png)
+![Login Screen](frontend/public/documentation/login.png)
 
 ### 2. Panel Karyawan: Status Absensi Hari Ini
 
-![Personal Dashboard](/documentation/dashboardkaryawan.png)
+![Personal Dashboard](frontend/public/documentation/dashboardkaryawan.png)
 
 ### 3. Panel Karyawan: Form Pengisian Presensi (Upload Foto)
 
-![Absensi Form](/documentation/formpresensi.png)
+![Absensi Form](frontend/public/documentation/formpresensi.png)
 
 ### 4. Panel Karyawan: Riwayat Absensi
 
-![Riwayat Transaksi Pribadi](/documentation/riwayatpresensi.png)
+![Riwayat Transaksi Pribadi](frontend/public/documentation/riwayatpresensi.png)
 
 ### 5. Dasbor Admin (HR Analytics)
 
-![HR Master Dashboard](/documentation/admindashboard.png)
+![HR Master Dashboard](frontend/public/documentation/admindashboard.png)
 
 ### 6. Admin Panel: Master Karyawan
 
-![Mengelola Data Pegawai](/documentation/matsterkaryawan.png)
+![Mengelola Data Pegawai](frontend/public/documentation/matsterkaryawan.png)
 
 ### 7. Admin Panel: Tabel Monitoring Harian
 
-![Pengintaian Absen Pegawai](/documentation/monitoring.png)
+![Pengintaian Absen Pegawai](frontend/public/documentation/monitoring.png)
